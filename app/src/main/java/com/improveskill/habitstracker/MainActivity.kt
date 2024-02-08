@@ -6,27 +6,23 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.improveskill.habitstracker.Adapter.habitAdapter
 import com.improveskill.habitstracker.database.HabitDataBase
 import com.improveskill.habitstracker.database.habit
 import com.improveskill.habitstracker.databinding.ActivityMainBinding
 import io.reactivex.CompletableObserver
-import io.reactivex.Observable
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bind: ActivityMainBinding

@@ -1,9 +1,8 @@
-package com.improveskill.habitstracker
+package com.improveskill.habitstracker.Adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
@@ -24,7 +23,9 @@ import kotlin.random.Random
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
+import com.improveskill.habitstracker.R
 import com.improveskill.habitstracker.Receiver.AlarmReceiver
+import com.improveskill.habitstracker.SharedPrefData
 import java.util.*
 class habitAdapter(private val context: Context, private val Habits: List<habit>) :
     RecyclerView.Adapter<habitAdapter.HabitViewHolder?>() {
