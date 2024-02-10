@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "table_habit")
 class habit (
-    val habitName: String,
-    val duration: Int,
+    var habitName: String,
+    var duration: Int,
     var remainingTime:Int
     ){
         @PrimaryKey(autoGenerate = true)

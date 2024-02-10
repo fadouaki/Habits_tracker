@@ -1,6 +1,7 @@
 package com.improveskill.habitstracker.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -11,13 +12,16 @@ import io.reactivex.Single
 @Dao
 interface habitDAO {
     @Insert
-    fun insertCategory(habit: habit): Completable
+    fun insertHabit(habit: habit): Completable
 
     @Update
-    fun updateCategory(habit: habit): Completable
+    fun updateHabit(habit: habit): Completable
+
+    @Delete
+    fun deleteHabit(habit: habit): Completable
 
     @Query("SELECT * FROM table_habit")
-    fun getCategories(): Single<List<habit>>
+    fun getHabits(): Single<List<habit>>
 
 /*    @Query("SELECT * FROM table_habit WHERE habitName LIKE :query")
     fun searchByTopic(query: String?): Single<List<habit?>?>?*/

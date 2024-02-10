@@ -28,7 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bind: ActivityMainBinding
     lateinit var postDataBase: HabitDataBase
     lateinit var adapter: habitAdapter
-    lateinit var Habits:  List<habit>
+    lateinit var Habits: List<habit>
+
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +38,10 @@ class MainActivity : AppCompatActivity() {
         Habits = ArrayList()
         postDataBase = HabitDataBase.getInstance(this)
 
-        postDataBase.postDao().getCategories()
+        postDataBase.postDao().getHabits()
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object :SingleObserver<List<habit>>{
+            .subscribe(object : SingleObserver<List<habit>> {
                 override fun onSubscribe(d: Disposable) {
                 }
 
@@ -49,66 +50,21 @@ class MainActivity : AppCompatActivity() {
 
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onSuccess(t: List<habit>) {
-                    Habits=t
-                    adapter = habitAdapter(this@MainActivity,Habits)
-                    Log.d("HabitTAki", " size ${t.size}" )
+                    Habits = t
+                    adapter = habitAdapter(this@MainActivity, Habits)
+                    Log.d("HabitTAki", " size ${t.size}")
                     bind.recyclerHabit.layoutManager = LinearLayoutManager(this@MainActivity)
                     bind.recyclerHabit.adapter = adapter
 
                 }
 
-            } )
+            })
         // Set layout manager and adapter
 
 
         bind.addItem.setOnClickListener {
 
-
-            val SettingsDialog: Dialog = Dialog(this)
-            SettingsDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            SettingsDialog.setContentView(R.layout.dialog_add_item)
-            val name=   SettingsDialog.findViewById<EditText>(R.id.name_habit)
-            val hoursDuration=   SettingsDialog.findViewById<EditText>(R.id.hour_habit)
-            val munitesDuration=   SettingsDialog.findViewById<EditText>(R.id.min_habit)
-            Log.d("HabitTAki", " null text is : ${name.text.isEmpty()}")
-
-            SettingsDialog.window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            SettingsDialog.findViewById<Button>(R.id.add_habit).setOnClickListener {
-                if (!name.text.isEmpty() && !munitesDuration.text.isEmpty() && !hoursDuration.text.isEmpty()) {
-                    val duration: Int = (hoursDuration.text.toString()
-                        .toInt() * 3600) + munitesDuration.text.toString().toInt() * 60
-                    (Habits as ArrayList).add(habit(name.text.toString(), duration, 0))
-                    adapter.notifyDataSetChanged()
-                    postDataBase.postDao()
-                        .insertCategory(habit(name.text.toString(), duration, 0))
-                        .subscribeOn(Schedulers.computation())
-                        .subscribe(object : CompletableObserver {
-                            override fun onSubscribe(d: Disposable) {
-                                Log.d("HabitTAki", " add habit onSubscribe ")
-                            }
-
-                            @SuppressLint("NotifyDataSetChanged")
-                            override fun onComplete() {
-                                Log.d("HabitTAki", " add habit completed ")
-                                SettingsDialog.dismiss()
-
-                            }
-
-                            override fun onError(e: Throwable) {
-                                Log.d("HabitTAki", " add habit onError ")
-                                Toast.makeText(this@MainActivity, "Error...", Toast.LENGTH_LONG)
-                                    .show()
-                                SettingsDialog.dismiss()
-
-                            }
-                        })
-                }else
-                    Toast.makeText(this@MainActivity,"Please fill out all fields!", Toast.LENGTH_LONG).show()
-            }
-            SettingsDialog.show()
+            showAddDialog()
 
         }
 
@@ -118,6 +74,60 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun showAddDialog() {
+        val SettingsDialog: Dialog = Dialog(this)
+        SettingsDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        SettingsDialog.setContentView(R.layout.dialog_add_item)
+
+        val name = SettingsDialog.findViewById<EditText>(R.id.name_habit)
+        val hoursDuration = SettingsDialog.findViewById<EditText>(R.id.hour_habit)
+        val minutesDuration = SettingsDialog.findViewById<EditText>(R.id.min_habit)
+
+        SettingsDialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        SettingsDialog.findViewById<Button>(R.id.add_habit).setOnClickListener {
+
+            if (!name.text.isEmpty() && !minutesDuration.text.isEmpty() && !hoursDuration.text.isEmpty()) {
+
+                val duration: Int = (hoursDuration.text.toString()
+                    .toInt() * 3600) + minutesDuration.text.toString().toInt() * 60
+                (Habits as ArrayList).add(habit(name.text.toString(), duration, 0))
+                adapter.notifyDataSetChanged()
+                postDataBase.postDao()
+                    .insertHabit(habit(name.text.toString(), duration, 0))
+                    .subscribeOn(Schedulers.computation())
+                    .subscribe(object : CompletableObserver {
+                        override fun onSubscribe(d: Disposable) {
+                            Log.d("HabitTAki", " add habit onSubscribe ")
+                        }
+
+                        @SuppressLint("NotifyDataSetChanged")
+                        override fun onComplete() {
+                            Log.d("HabitTAki", " add habit completed ")
+                            SettingsDialog.dismiss()
+
+                        }
+
+                        override fun onError(e: Throwable) {
+                            Log.d("HabitTAki", " add habit onError ")
+                            Toast.makeText(this@MainActivity, "Error...", Toast.LENGTH_LONG)
+                                .show()
+                            SettingsDialog.dismiss()
+
+                        }
+                    })
+            } else
+
+                Toast.makeText(this@MainActivity, "Please fill out all fields!", Toast.LENGTH_LONG)
+                    .show()
+        }
+        SettingsDialog.show()
     }
 
     fun showRenewDataDialog(context: Context) {
@@ -131,7 +141,7 @@ class MainActivity : AppCompatActivity() {
         alertDialogBuilder.setPositiveButton("Ok") { dialog, which ->
             for (h in Habits) {
                 h.remainingTime = 0
-                postDataBase.postDao().updateCategory(h)
+                postDataBase.postDao().updateHabit(h)
                     .subscribeOn(Schedulers.computation())
                     .subscribe(object : CompletableObserver {
                         override fun onSubscribe(d: Disposable) {
