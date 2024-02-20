@@ -25,83 +25,160 @@
             android:orientation="vertical">
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:paddingTop="10dp"
-                android:text="Habit name"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/name_habit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:ems="10"
-                android:gravity="center"
-                android:hint="Sport"
-                android:inputType="text" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:paddingTop="10dp"
-                android:text="Duration of habit"
-                android:textStyle="bold" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_margin="3dp"
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <LinearLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:paddingTop="10dp"
+                    android:text="Habit name"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/name_habit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
+                    android:ems="10"
                     android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/hour_habit"
-                        android:layout_width="90dp"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:gravity="center"
-                        android:hint="2"
-                        android:inputType="number" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Hours" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/min_habit"
-                        android:layout_width="90dp"
-                        android:layout_height="wrap_content"
-                        android:ems="10"
-                        android:gravity="center"
-                        android:hint="27"
-                        android:inputType="number" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Minutes" />
-                </LinearLayout>
+                    android:hint="Sport"
+                    android:inputType="text" />
             </LinearLayout>
 
+            <CheckBox
+                android:id="@+id/checkBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="disible time" />
+
+            <LinearLayout
+                android:id="@+id/time_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:paddingTop="10dp"
+                    android:text="Duration of habit"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="45dp"
+                        android:layout_marginHorizontal="5dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/hour_habit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ems="10"
+                            android:gravity="center"
+                            android:hint="2"
+                            android:inputType="number"
+                            android:maxWidth="90dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Hours" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="5dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/min_habit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="45dp"
+                            android:layout_weight="1"
+                            android:ems="10"
+                            android:gravity="center"
+                            android:hint="27"
+                            android:inputType="number"
+                            android:maxWidth="90dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Minutes" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="Duration of habit"
+                android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="match_parent"
+                    android:gravity="center"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radioLow"
+                        android:layout_weight="1"
+                        android:textColor="#0E9F26"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:tag="1"
+                        android:text="Low"/>
+
+                    <RadioButton
+                        android:id="@+id/radioMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="#DF800B"
+                        android:textStyle="bold"
+                        android:layout_height="wrap_content"
+                        android:tag="2"
+                        android:text="Medium"/>
+
+                    <RadioButton
+                        android:id="@+id/radioHigh"
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="#DF2121"
+                        android:textStyle="bold"
+                        android:tag="3"
+                        android:layout_height="wrap_content"
+                        android:text="High"/>
+                </RadioGroup>
+            </LinearLayout>
             <Button
                 android:id="@+id/add_habit"
                 android:layout_width="wrap_content"

@@ -8,10 +8,17 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.improveskill.habitstracker.Adapter.habitAdapter
@@ -23,12 +30,16 @@ import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.Objects
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bind: ActivityMainBinding
     lateinit var postDataBase: HabitDataBase
     lateinit var adapter: habitAdapter
     lateinit var Habits: List<habit>
+    private var duration = 0
+    lateinit var sharedPrefData: SharedPrefData
+
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,21 +48,30 @@ class MainActivity : AppCompatActivity() {
         setContentView(bind.root)
         Habits = ArrayList()
         postDataBase = HabitDataBase.getInstance(this)
+        sharedPrefData = SharedPrefData(this)
+
 
         postDataBase.postDao().getHabits()
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : SingleObserver<List<habit>> {
                 override fun onSubscribe(d: Disposable) {
+                    Log.d("HabitTAki", " size dis")
                 }
 
                 override fun onError(e: Throwable) {
+                    Log.d("HabitTAki", " size ${e.toString()}")
                 }
 
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onSuccess(t: List<habit>) {
                     Habits = t
-                    adapter = habitAdapter(this@MainActivity, Habits)
+                    adapter = habitAdapter(this@MainActivity, Habits, object : OnComplite {
+                        override fun onComplite(priority: Int) {
+                            UpgradeProductivity(priority)
+                        }
+
+                    })
                     Log.d("HabitTAki", " size ${t.size}")
                     bind.recyclerHabit.layoutManager = LinearLayoutManager(this@MainActivity)
                     bind.recyclerHabit.adapter = adapter
@@ -71,6 +91,68 @@ class MainActivity : AppCompatActivity() {
         bind.Renew.setOnClickListener {
             showRenewDataDialog(this@MainActivity)
 
+
+        }
+
+        getProgress()
+    }
+
+    fun UpgradeProductivity(Priority: Int) {
+        val percentage: Float =
+            Priority.toFloat() / sharedPrefData.LoadInt("TotalPriority").toFloat()
+        val progressStatus = sharedPrefData.LoadInt("Progress")
+
+        Log.d(
+            "HabitTAki",
+            " percentage $percentage Priority$Priority TotalPriority ${sharedPrefData.LoadInt("TotalPriority")}"
+        )
+        bind.progressBar.progress = (progressStatus + percentage * bind.progressBar.max).toInt()
+        if (bind.progressBar.progress > 97)
+            bind.progressBar.progress = 100
+
+        // Update position of the emoji based on progress
+        val progressBarWidth =
+            bind.progressBar.width - bind.progressBar.paddingLeft - bind.progressBar.paddingRight
+        val layoutParams = bind.emojiTextView.layoutParams as LinearLayout.LayoutParams
+
+        layoutParams.leftMargin =
+            (progressStatus * progressBarWidth / 100 + progressBarWidth * percentage).toInt() - bind.emojiTextView.width / 2
+        Log.d("HabitTAki", "    layoutParams.leftMargin  ${layoutParams.leftMargin} ")
+        if (layoutParams.leftMargin > progressBarWidth * 2 / 3) {
+            bind.emojiTextView.text = "\uD83C\uDFC5"
+            layoutParams.leftMargin -= 15
+        } else if (layoutParams.leftMargin > progressBarWidth / 3)
+            bind.emojiTextView.text = "✌️"
+        if (progressStatus < bind.progressBar.max) {
+            if (layoutParams.leftMargin < 0)
+                layoutParams.leftMargin = 0
+            bind.emojiTextView.layoutParams = layoutParams
+        }
+        sharedPrefData.SaveInt("Progress", bind.progressBar.progress)
+    }
+    fun getProgress(){
+        val progressStatus = sharedPrefData.LoadInt("Progress")
+        bind.progressBar.progress = progressStatus
+        if (bind.progressBar.progress > 97)
+            bind.progressBar.progress = 100
+        // Update position of the emoji based on progress
+        bind.progressBar.post {
+            val progressBarWidth = bind.progressBar.width - bind.progressBar.paddingLeft - bind.progressBar.paddingRight
+            val layoutParams = bind.emojiTextView.layoutParams as LinearLayout.LayoutParams
+
+            layoutParams.leftMargin =
+                ( progressBarWidth*progressStatus/100 ).toInt() - bind.emojiTextView.width / 2
+
+            if (layoutParams.leftMargin > progressBarWidth * 2 / 3) {
+                bind.emojiTextView.text = "\uD83C\uDFC5"
+                layoutParams.leftMargin -= 15
+            } else if (layoutParams.leftMargin > progressBarWidth / 3)
+                bind.emojiTextView.text = "✌️"
+            if (progressStatus < bind.progressBar.max) {
+                if (layoutParams.leftMargin < 0)
+                    layoutParams.leftMargin = 0
+                bind.emojiTextView.layoutParams = layoutParams
+            }
         }
 
 
@@ -78,6 +160,7 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     fun showAddDialog() {
+        var priority: Int = 1
         val SettingsDialog: Dialog = Dialog(this)
         SettingsDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         SettingsDialog.setContentView(R.layout.dialog_add_item)
@@ -85,22 +168,58 @@ class MainActivity : AppCompatActivity() {
         val name = SettingsDialog.findViewById<EditText>(R.id.name_habit)
         val hoursDuration = SettingsDialog.findViewById<EditText>(R.id.hour_habit)
         val minutesDuration = SettingsDialog.findViewById<EditText>(R.id.min_habit)
+        val timeLayout = SettingsDialog.findViewById<LinearLayout>(R.id.time_layout)
 
         SettingsDialog.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        SettingsDialog.findViewById<RadioGroup>(R.id.radioGroup)
+            .setOnCheckedChangeListener { _er, checkedId ->
+                val radioButton = _er.findViewById<RadioButton>(checkedId)
+                if (radioButton != null) {
+                    priority = radioButton.tag.toString().toInt()
+                    Log.d("HabitTAki", " priority $priority")
+                    sharedPrefData.SaveInt(
+                        "TotalPriority",
+                        sharedPrefData.LoadInt("TotalPriority") + priority
+                    )
+                    // Continue with your logic...
+                }
+            }
+        SettingsDialog.findViewById<CheckBox>(R.id.checkBox)
+            .setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked) {
+                    duration = 1
+                    timeLayout.visibility = View.GONE
 
+                } else {
+                    duration = 0
+                    timeLayout.visibility = View.VISIBLE
+                }
+            }
         SettingsDialog.findViewById<Button>(R.id.add_habit).setOnClickListener {
 
-            if (!name.text.isEmpty() && !minutesDuration.text.isEmpty() && !hoursDuration.text.isEmpty()) {
+            if (!name.text.isEmpty()) {
+                if (duration == 0)
+                    if (!minutesDuration.text.isEmpty() && !hoursDuration.text.isEmpty())
+                        duration = (hoursDuration.text.toString()
+                            .toInt() * 3600) + minutesDuration.text.toString()
+                            .toInt() * 60 // seconds
+                    else {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Please fill out all fields!",
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                        return@setOnClickListener
+                    }
 
-                val duration: Int = (hoursDuration.text.toString()
-                    .toInt() * 3600) + minutesDuration.text.toString().toInt() * 60
-                (Habits as ArrayList).add(habit(name.text.toString(), duration, 0))
+                (Habits as ArrayList).add(habit(name.text.toString(), duration, 0, priority))
                 adapter.notifyDataSetChanged()
                 postDataBase.postDao()
-                    .insertHabit(habit(name.text.toString(), duration, 0))
+                    .insertHabit(habit(name.text.toString(), duration, 0, priority))
                     .subscribeOn(Schedulers.computation())
                     .subscribe(object : CompletableObserver {
                         override fun onSubscribe(d: Disposable) {
@@ -127,6 +246,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Please fill out all fields!", Toast.LENGTH_LONG)
                     .show()
         }
+
         SettingsDialog.show()
     }
 
@@ -149,6 +269,8 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onComplete() {
+                            sharedPrefData.SaveInt("Progress", 0)
+                            UpgradeProductivity(0)
                         }
 
                         override fun onError(e: Throwable) {

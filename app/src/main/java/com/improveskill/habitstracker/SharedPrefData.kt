@@ -18,7 +18,7 @@ class SharedPrefData(context: Context) {
 
     // this method will load the Night Mode State
     fun LoadInt(key: String?): Int {
-        return mySharedPref.getInt(key, 1)
+        return mySharedPref.getInt(key, 0)
     }
 
     fun SaveBoolean(key: String?, state: Boolean?) {

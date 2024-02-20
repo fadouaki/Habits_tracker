@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 class habit (
     var habitName: String,
     var duration: Int,
-    var remainingTime:Int
+    var remainingTime:Int,
+    var priority:Int
     ){
         @PrimaryKey(autoGenerate = true)
         var id = 0

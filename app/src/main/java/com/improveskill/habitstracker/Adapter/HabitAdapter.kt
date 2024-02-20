@@ -29,13 +29,15 @@ import android.graphics.drawable.ColorDrawable
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import com.improveskill.habitstracker.MainActivity
+import com.improveskill.habitstracker.OnComplite
 import com.improveskill.habitstracker.R
 import com.improveskill.habitstracker.Receiver.AlarmReceiver
 import com.improveskill.habitstracker.SharedPrefData
 import java.util.*
 import kotlin.collections.ArrayList
 
-class habitAdapter(private val context: Context, private val Habits: List<habit>) :
+class habitAdapter(private val context: Context, private val Habits: List<habit>,private val onComplite: OnComplite) :
     RecyclerView.Adapter<habitAdapter.HabitViewHolder?>() {
     private val handler = Handler()
     lateinit var postDataBase: HabitDataBase
@@ -49,8 +51,7 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
     }
 
     override fun onBindViewHolder(
-        holder: HabitViewHolder,
-        @SuppressLint("RecyclerView") position: Int
+        holder: HabitViewHolder, @SuppressLint("RecyclerView") position: Int
     ) {
         val habit = Habits[position]
         holder.nameHAbit.text = habit.habitName
@@ -58,61 +59,83 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
         holder.hProgressBar.max = habit.duration
         holder.hProgressBar.setProgress(habit.remainingTime)
         holder.hCardView.setCardBackgroundColor(generateRandomColor())
+        if (habit.duration==1){
+            Log.d("HabitTAki", "doemm ${habit.remainingTime == habit.duration}")
+            holder.hDuration.visibility = View.GONE
+            holder.hProgressBar.visibility = View.GONE
+            holder.remaining_time.visibility = View.GONE
+        }
         if (habit.remainingTime == habit.duration) {
             holder.btn_layout.visibility = View.GONE
             holder.taskcompleted.visibility = View.VISIBLE
         } else {
             holder.btn_layout.visibility = View.VISIBLE
             holder.taskcompleted.visibility = View.GONE
-            holder.hStartPause.setImageResource(R.drawable.baseline_play_circle_24)
+           // holder.hStartPause.setImageResource(R.drawable.baseline_play_circle_24)
         }
+
 
         holder.remaining_time.text =
             "Remaining time : ${convertSecondsToHMS(habit.duration - habit.remainingTime)}"
 
         holder.hStartPause.setOnClickListener {
 
-            durationInMillis =
-                System.currentTimeMillis() + (habit.duration - habit.remainingTime).toLong() * 1000
+           if (habit.duration!=1) {
+               durationInMillis =
+                   System.currentTimeMillis() + (habit.duration - habit.remainingTime).toLong() * 1000
 
-            if (!sharedPrefData.LoadBoolean("WorkInHabit")) {
-                sharedPrefData.SaveBoolean("WorkInHabit", true)
-                pandentIntent = scheduleAlarm(context, durationInMillis)
+               if (!sharedPrefData.LoadBoolean("WorkingInHabit")) {
 
-                holder.hStartPause.setImageResource(R.drawable.baseline_pause_circle_24)
-                handler.postDelayed(object : Runnable {
-                    override fun run() {
-                        val currentTime = System.currentTimeMillis()
-                        val remainingTime = durationInMillis - currentTime
-                        val remainingSeconds = remainingTime / (1000)
+                   sharedPrefData.SaveBoolean("WorkingInHabit", true)
+                   pandentIntent = scheduleAlarm(context, durationInMillis)
 
-                        holder.hProgressBar.setProgress(habit.duration - remainingSeconds.toInt())
-                        holder.remaining_time.text =
-                            "Remaining time :${convertSecondsToHMS(remainingSeconds.toInt())}"
-                        if (remainingSeconds.toInt() <= 0) {
-                            Log.d("HabitTAki", "Receiver started1111")
-                            holder.btn_layout.visibility = View.GONE
-                            holder.taskcompleted.visibility = View.VISIBLE
-                            habit.remainingTime = holder.hProgressBar.progress
-                            UpdateHabit(habit)
-                            holder.remaining_time.text = "Remaining time :${convertSecondsToHMS(0)}"
-                        } else {
-                            // Post the next update after the defined interval
-                            handler.postDelayed(this, 1000)
-                        }
-                    }
-                }, 1000)
-            } else {
-                if (holder.hProgressBar.progress != habit.remainingTime) {
-                    habit.remainingTime = holder.hProgressBar.progress
-                    UpdateHabit(habit)
-                    cancelAlarm(context, pandentIntent)
-                    handler.removeCallbacksAndMessages(null)
-                    holder.hStartPause.setImageResource(R.drawable.baseline_play_circle_24)
+                   holder.hStartPause.setImageResource(R.drawable.baseline_pause_circle_24)
+                   handler.postDelayed(object : Runnable {
+                       override fun run() {
+                           val currentTime = System.currentTimeMillis()
+                           val remainingTime = durationInMillis - currentTime
+                           val remainingSeconds = remainingTime / (1000)
 
-                } else
-                    Toast.makeText(context, "Now you are working", Toast.LENGTH_LONG).show()
-            }
+                           holder.hProgressBar.setProgress(habit.duration - remainingSeconds.toInt())
+                           holder.remaining_time.text =
+                               "Remaining time :${convertSecondsToHMS(remainingSeconds.toInt())}"
+                           if (remainingSeconds.toInt() <= 0) {
+                               Log.d("HabitTAki", "Receiver started1111")
+                               holder.btn_layout.visibility = View.GONE
+                               holder.taskcompleted.visibility = View.VISIBLE
+                               habit.remainingTime = holder.hProgressBar.progress
+                               UpdateHabit(habit)
+                               holder.remaining_time.text =
+                                   "Remaining time :${convertSecondsToHMS(0)}"
+                               onComplite.onComplite(habit.priority)
+                           } else {
+                               // Post the next update after the defined interval
+                               handler.postDelayed(this, 1000)
+                           }
+                       }
+                   }, 1000)
+               } else {
+                   if (holder.hProgressBar.progress != habit.remainingTime) {
+                       habit.remainingTime = holder.hProgressBar.progress
+                       UpdateHabit(habit)
+                       cancelAlarm(context, pandentIntent)
+                       handler.removeCallbacksAndMessages(null)
+                       holder.hStartPause.setImageResource(R.drawable.baseline_play_circle_24)
+                   } else Toast.makeText(
+                       context,
+                       "Now you are working ${sharedPrefData.LoadBoolean("WorkingInHabit")}",
+                       Toast.LENGTH_LONG
+                   ).show()
+               }
+           }else
+           {
+               holder.btn_layout.visibility = View.GONE
+               holder.taskcompleted.visibility = View.VISIBLE
+               habit.remainingTime = habit.duration
+               UpdateHabit(habit)
+               onComplite.onComplite(habit.priority)
+           }
+
 
         }
         holder.hEdite.setOnClickListener {
@@ -143,8 +166,7 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
 
     fun UpdateHabit(habit: habit) {
         postDataBase = HabitDataBase.getInstance(context)
-        postDataBase.postDao().updateHabit(habit)
-            .subscribeOn(Schedulers.computation())
+        postDataBase.postDao().updateHabit(habit).subscribeOn(Schedulers.computation())
             .subscribe(object : CompletableObserver {
                 override fun onSubscribe(d: Disposable) {
 
@@ -157,7 +179,8 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
                 }
 
             })
-        sharedPrefData.SaveBoolean("WorkInHabit", false)
+        
+        sharedPrefData.SaveBoolean("WorkingInHabit", false)
     }
 
     @SuppressLint("ScheduleExactAlarm")
@@ -209,24 +232,22 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
         minutesDuration.setText("${(Ehabit.duration / 60) % 60}")
         Log.d("HabitTAki", "minite ${Ehabit.duration / 60} with ${Ehabit.duration} ")
         SettingsDialog.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
         SettingsDialog.findViewById<Button>(R.id.add_habit).setOnClickListener {
 
             if (!name.text.isEmpty() && !minutesDuration.text.isEmpty() && !hoursDuration.text.isEmpty()) {
 
-                val duration: Int = (hoursDuration.text.toString()
-                    .toInt() * 3600) + minutesDuration.text.toString().toInt() * 60
+                val duration: Int =
+                    (hoursDuration.text.toString().toInt() * 3600) + minutesDuration.text.toString()
+                        .toInt() * 60
 
                 Ehabit.habitName = name.text.toString()
                 Ehabit.duration = duration
                 notifyDataSetChanged()
                 postDataBase = HabitDataBase.getInstance(context)
-                postDataBase.postDao()
-                    .updateHabit(Ehabit)
-                    .subscribeOn(Schedulers.computation())
+                postDataBase.postDao().updateHabit(Ehabit).subscribeOn(Schedulers.computation())
                     .subscribe(object : CompletableObserver {
                         override fun onSubscribe(d: Disposable) {
                         }
@@ -240,19 +261,21 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
 
                         override fun onError(e: Throwable) {
                             Log.d("HabitTAki", " Edite habit onError ")
-                            Toast.makeText(context, "Error...", Toast.LENGTH_LONG)
-                                .show()
+                            Toast.makeText(context, "Error...", Toast.LENGTH_LONG).show()
                             SettingsDialog.dismiss()
                         }
                     })
-            } else
-                Toast.makeText(context, "Please don't leave any fields empty!", Toast.LENGTH_LONG)
-                    .show()
+            } else Toast.makeText(
+                context,
+                "Please don't leave any fields empty!",
+                Toast.LENGTH_LONG
+            ).show()
         }
         SettingsDialog.show()
     }
 
     fun showDeleteHabit(dHabit: habit) {
+       val   priority=dHabit.priority
         val alertDialogBuilder = AlertDialog.Builder(context)
 
         // Set the title and message
@@ -263,14 +286,14 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
         alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
             (Habits as ArrayList).remove(dHabit)
             postDataBase = HabitDataBase.getInstance(context)
-            postDataBase.postDao().deleteHabit(dHabit)
-                .subscribeOn(Schedulers.computation())
+            postDataBase.postDao().deleteHabit(dHabit).subscribeOn(Schedulers.computation())
                 .subscribe(object : CompletableObserver {
                     override fun onSubscribe(d: Disposable) {
 
                     }
 
                     override fun onComplete() {
+                        sharedPrefData.SaveInt("TotalPriority", sharedPrefData.LoadInt("TotalPriority")-priority)
                     }
 
                     override fun onError(e: Throwable) {
