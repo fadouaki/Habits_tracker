@@ -34,7 +34,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:fontFamily="@font/carter_one"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
                     android:text="Android Studio"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
@@ -75,8 +76,9 @@
                     <ImageView
                         android:id="@+id/hEdite"
                         android:layout_width="wrap_content"
+                        android:padding="3dp"
                         android:layout_height="match_parent"
-                        android:src="@drawable/baseline_edit_24" />
+                        android:src="@drawable/baseline_delete_sweep_24" />
 
                     <ImageView
                         android:id="@+id/hStartPause"

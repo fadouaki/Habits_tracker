@@ -29,6 +29,8 @@ import android.graphics.drawable.ColorDrawable
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import com.improveskill.habitstracker.MainActivity
 import com.improveskill.habitstracker.OnComplite
 import com.improveskill.habitstracker.R
@@ -58,7 +60,7 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
         holder.hDuration.text = "Duration ${convertSecondsToHMS(habit.duration)}"
         holder.hProgressBar.max = habit.duration
         holder.hProgressBar.setProgress(habit.remainingTime)
-        holder.hCardView.setCardBackgroundColor(generateRandomColor())
+        holder.hCardView.setCardBackgroundColor(habit.color)
         if (habit.duration==1){
             Log.d("HabitTAki", "doemm ${habit.remainingTime == habit.duration}")
             holder.hDuration.visibility = View.GONE
@@ -139,12 +141,13 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
 
         }
         holder.hEdite.setOnClickListener {
-            showAddEditeDialog(habit)
+         //   showAddEditeDialog(habit)
+            showDeleteHabit(habit)
         }
-        holder.hCardView.setOnLongClickListener {
+       /* holder.hCardView.setOnLongClickListener {
             showDeleteHabit(habit)
             true
-        }
+        }*/
 
     }
 
@@ -198,14 +201,6 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
         alarmManager.cancel(pendingIntent)
     }
 
-    fun generateRandomColor(): Int {
-        val random = Random.Default
-        val red = random.nextInt(128, 256) // Generate random value for red (128-255)
-        val green = random.nextInt(128, 256) // Generate random value for green (128-255)
-        val blue = random.nextInt(128, 256) // Generate random value for blue (128-255)
-        return Color.rgb(red, green, blue) // Combine components and return color
-    }
-
     fun convertSecondsToHMS(seconds: Int): String {
         val hours = seconds / 3600
         val remainingSeconds = seconds % 3600
@@ -215,8 +210,9 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
         return String.format("%02d:%02d:%02d", hours, minutes, remainingSecondsFinal)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+  /*  @SuppressLint("NotifyDataSetChanged")
     fun showAddEditeDialog(Ehabit: habit) {
+        var priority: Int = 1
         val SettingsDialog: Dialog = Dialog(context)
         SettingsDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         SettingsDialog.setContentView(R.layout.dialog_add_item)
@@ -234,6 +230,18 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
         SettingsDialog.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        SettingsDialog.findViewById<RadioGroup>(R.id.radioGroup)
+            .setOnCheckedChangeListener { _er, checkedId ->
+                val radioButton = _er.findViewById<RadioButton>(checkedId)
+                if (radioButton != null) {
+                    priority = radioButton.tag.toString().toInt()
+                    sharedPrefData.SaveInt(
+                        "TotalPriority",
+                        sharedPrefData.LoadInt("TotalPriority") + priority
+                    )
+                    // Continue with your logic...
+                }
+            }
 
         SettingsDialog.findViewById<Button>(R.id.add_habit).setOnClickListener {
 
@@ -272,50 +280,56 @@ class habitAdapter(private val context: Context, private val Habits: List<habit>
             ).show()
         }
         SettingsDialog.show()
-    }
+    }*/
 
     fun showDeleteHabit(dHabit: habit) {
-       val   priority=dHabit.priority
-        val alertDialogBuilder = AlertDialog.Builder(context)
+        if (sharedPrefData.LoadInt("Progress")==0) {
+            val priority = dHabit.priority
+            val alertDialogBuilder = AlertDialog.Builder(context)
 
-        // Set the title and message
-        alertDialogBuilder.setTitle("Delete Habit")
-        alertDialogBuilder.setMessage("Are you sure to delete habit : ${dHabit.habitName} ?")
+            // Set the title and message
+            alertDialogBuilder.setTitle("Delete Habit")
+            alertDialogBuilder.setMessage("Are you sure to delete habit : ${dHabit.habitName} ?")
 
-        // Set the positive button
-        alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
-            (Habits as ArrayList).remove(dHabit)
-            postDataBase = HabitDataBase.getInstance(context)
-            postDataBase.postDao().deleteHabit(dHabit).subscribeOn(Schedulers.computation())
-                .subscribe(object : CompletableObserver {
-                    override fun onSubscribe(d: Disposable) {
+            // Set the positive button
+            alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
+                (Habits as ArrayList).remove(dHabit)
+                postDataBase = HabitDataBase.getInstance(context)
+                postDataBase.postDao().deleteHabit(dHabit).subscribeOn(Schedulers.computation())
+                    .subscribe(object : CompletableObserver {
+                        override fun onSubscribe(d: Disposable) {
 
-                    }
+                        }
 
-                    override fun onComplete() {
-                        sharedPrefData.SaveInt("TotalPriority", sharedPrefData.LoadInt("TotalPriority")-priority)
-                    }
+                        override fun onComplete() {
+                            sharedPrefData.SaveInt(
+                                "TotalPriority",
+                                sharedPrefData.LoadInt("TotalPriority") - priority
+                            )
+                        }
 
-                    override fun onError(e: Throwable) {
-                    }
+                        override fun onError(e: Throwable) {
+                        }
 
-                })
+                    })
 
-            notifyDataSetChanged()
-            dialog.dismiss()
-            // Action when "Ok" button is clicked
-            // You can put your code here to handle the action
-        }
+                notifyDataSetChanged()
+                dialog.dismiss()
+                // Action when "Ok" button is clicked
+                // You can put your code here to handle the action
+            }
 
-        // Set the negative button
-        alertDialogBuilder.setNegativeButton("No") { dialog, which ->
-            dialog.dismiss()
-            // Action when "No" button is clicked
-            // You can put your code here to handle the action
-        }
+            // Set the negative button
+            alertDialogBuilder.setNegativeButton("No") { dialog, which ->
+                dialog.dismiss()
+                // Action when "No" button is clicked
+                // You can put your code here to handle the action
+            }
 
-        // Create and show the dialog
-        val alertDialog = alertDialogBuilder.create()
-        alertDialog.show()
+            // Create and show the dialog
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.show()
+        }else
+            Toast.makeText(context, "It is better to reset all data after you can delete it to calculate your productivity",Toast.LENGTH_LONG).show()
     }
 }

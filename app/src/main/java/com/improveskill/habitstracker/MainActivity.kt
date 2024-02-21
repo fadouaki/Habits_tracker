@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -20,6 +22,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.improveskill.habitstracker.Adapter.habitAdapter
 import com.improveskill.habitstracker.database.HabitDataBase
@@ -31,6 +34,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.Objects
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bind: ActivityMainBinding
@@ -49,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         Habits = ArrayList()
         postDataBase = HabitDataBase.getInstance(this)
         sharedPrefData = SharedPrefData(this)
-
 
         postDataBase.postDao().getHabits()
             .subscribeOn(Schedulers.computation())
@@ -79,22 +82,26 @@ class MainActivity : AppCompatActivity() {
                 }
 
             })
-        // Set layout manager and adapter
-
-
-        bind.addItem.setOnClickListener {
-
-            showAddDialog()
-
-        }
-
-        bind.Renew.setOnClickListener {
-            showRenewDataDialog(this@MainActivity)
-
-
-        }
 
         getProgress()
+    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.Add_Item -> {
+                showAddDialog()
+                return true
+            }
+            R.id.Reset_data -> {
+                showRenewDataDialog(this@MainActivity)
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     fun UpgradeProductivity(Priority: Int) {
@@ -199,6 +206,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         SettingsDialog.findViewById<Button>(R.id.add_habit).setOnClickListener {
+            val Cardcolor:Int=generateRandomColor()
 
             if (!name.text.isEmpty()) {
                 if (duration == 0)
@@ -216,10 +224,10 @@ class MainActivity : AppCompatActivity() {
                         return@setOnClickListener
                     }
 
-                (Habits as ArrayList).add(habit(name.text.toString(), duration, 0, priority))
+                (Habits as ArrayList).add(habit(name.text.toString(), duration, 0, priority,Cardcolor))
                 adapter.notifyDataSetChanged()
                 postDataBase.postDao()
-                    .insertHabit(habit(name.text.toString(), duration, 0, priority))
+                    .insertHabit(habit(name.text.toString(), duration, 0, priority,Cardcolor))
                     .subscribeOn(Schedulers.computation())
                     .subscribe(object : CompletableObserver {
                         override fun onSubscribe(d: Disposable) {
@@ -295,4 +303,13 @@ class MainActivity : AppCompatActivity() {
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
     }
+
+    fun generateRandomColor(): Int {
+        val random = Random.Default
+        val red = random.nextInt(200, 256) // Generate random value for red (128-255)
+        val green = random.nextInt(200, 256) // Generate random value for green (128-255)
+        val blue = random.nextInt(200, 256) // Generate random value for blue (128-255)
+        return Color.rgb(red, green, blue) // Combine components and return color
+    }
+
 }
