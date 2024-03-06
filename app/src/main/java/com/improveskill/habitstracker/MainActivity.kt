@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity() {
                             .show()
                         return@setOnClickListener
                     }
-
+                Log.d("HabitTAki", "habit.duration ${duration}")
                 (Habits as ArrayList).add(habit(name.text.toString(),
                     (duration*1000).toLong(), 0, priority,Cardcolor))
                 adapter.notifyDataSetChanged()
@@ -262,6 +262,7 @@ class MainActivity : AppCompatActivity() {
 
                         }
                     })
+                duration = 0
             } else
 
                 Toast.makeText(this@MainActivity, "Please fill out all fields!", Toast.LENGTH_LONG)

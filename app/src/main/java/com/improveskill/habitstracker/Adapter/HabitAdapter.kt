@@ -62,8 +62,8 @@ class habitAdapter(
         holder.hProgressBar.max = (habit.duration / 1000).toInt()
         holder.hProgressBar.setProgress((habit.remainingTime / 1000).toInt())
         holder.hCardView.setCardBackgroundColor(habit.color)
+        Log.d("HabitTAki", "habit.duration ${habit.duration}")
         if (habit.duration == 1000L) {
-
             holder.hDuration.visibility = View.GONE
             holder.hProgressBar.visibility = View.GONE
             holder.remaining_time.visibility = View.GONE
