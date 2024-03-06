@@ -6,35 +6,35 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.improveskill.habitstracker.Adapter.habitAdapter
 import com.improveskill.habitstracker.database.HabitDataBase
 import com.improveskill.habitstracker.database.habit
 import com.improveskill.habitstracker.databinding.ActivityMainBinding
+import com.polidea.rxandroidble2.exceptions.BleException
 import io.reactivex.CompletableObserver
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.exceptions.UndeliverableException
+import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
-import java.util.Objects
 import kotlin.random.Random
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var bind: ActivityMainBinding
@@ -50,6 +50,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         bind = ActivityMainBinding.inflate(layoutInflater)
         setContentView(bind.root)
+        RxJavaPlugins.setErrorHandler { throwable ->
+            if (throwable is UndeliverableException && throwable.cause is BleException) {
+                return@setErrorHandler // ignore BleExceptions since we do not have subscriber
+            }
+            else {
+                throw throwable
+            }
+        }
         Habits = ArrayList()
         postDataBase = HabitDataBase.getInstance(this)
         sharedPrefData = SharedPrefData(this)
@@ -71,7 +79,10 @@ class MainActivity : AppCompatActivity() {
                     Habits = t
                     adapter = habitAdapter(this@MainActivity, Habits, object : OnComplite {
                         override fun onComplite(priority: Int) {
-                            UpgradeProductivity(priority)
+                            runOnUiThread {
+                                UpgradeProductivity(priority)
+                            }
+
                         }
 
                     })
@@ -109,10 +120,6 @@ class MainActivity : AppCompatActivity() {
             Priority.toFloat() / sharedPrefData.LoadInt("TotalPriority").toFloat()
         val progressStatus = sharedPrefData.LoadInt("Progress")
 
-        Log.d(
-            "HabitTAki",
-            " percentage $percentage Priority$Priority TotalPriority ${sharedPrefData.LoadInt("TotalPriority")}"
-        )
         bind.progressBar.progress = (progressStatus + percentage * bind.progressBar.max).toInt()
         if (bind.progressBar.progress > 97)
             bind.progressBar.progress = 100
@@ -124,12 +131,14 @@ class MainActivity : AppCompatActivity() {
 
         layoutParams.leftMargin =
             (progressStatus * progressBarWidth / 100 + progressBarWidth * percentage).toInt() - bind.emojiTextView.width / 2
-        Log.d("HabitTAki", "    layoutParams.leftMargin  ${layoutParams.leftMargin} ")
+        Log.d("HabitTAki", "    layoutParams.leftMargin  ${layoutParams.leftMargin} progressBarWidth $progressBarWidth ")
         if (layoutParams.leftMargin > progressBarWidth * 2 / 3) {
             bind.emojiTextView.text = "\uD83C\uDFC5"
             layoutParams.leftMargin -= 15
         } else if (layoutParams.leftMargin > progressBarWidth / 3)
             bind.emojiTextView.text = "✌️"
+        else
+            bind.emojiTextView.text = "\uD83D\uDE11"
         if (progressStatus < bind.progressBar.max) {
             if (layoutParams.leftMargin < 0)
                 layoutParams.leftMargin = 0
@@ -155,6 +164,9 @@ class MainActivity : AppCompatActivity() {
                 layoutParams.leftMargin -= 15
             } else if (layoutParams.leftMargin > progressBarWidth / 3)
                 bind.emojiTextView.text = "✌️"
+            else
+                bind.emojiTextView.text = "\uD83D\uDE11"
+
             if (progressStatus < bind.progressBar.max) {
                 if (layoutParams.leftMargin < 0)
                     layoutParams.leftMargin = 0
@@ -176,7 +188,7 @@ class MainActivity : AppCompatActivity() {
         val hoursDuration = SettingsDialog.findViewById<EditText>(R.id.hour_habit)
         val minutesDuration = SettingsDialog.findViewById<EditText>(R.id.min_habit)
         val timeLayout = SettingsDialog.findViewById<LinearLayout>(R.id.time_layout)
-
+        name.requestFocus()
         SettingsDialog.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -205,7 +217,7 @@ class MainActivity : AppCompatActivity() {
                     timeLayout.visibility = View.VISIBLE
                 }
             }
-        SettingsDialog.findViewById<Button>(R.id.add_habit).setOnClickListener {
+        SettingsDialog.findViewById<TextView>(R.id.add_habit).setOnClickListener {
             val Cardcolor:Int=generateRandomColor()
 
             if (!name.text.isEmpty()) {
@@ -224,10 +236,11 @@ class MainActivity : AppCompatActivity() {
                         return@setOnClickListener
                     }
 
-                (Habits as ArrayList).add(habit(name.text.toString(), duration, 0, priority,Cardcolor))
+                (Habits as ArrayList).add(habit(name.text.toString(),
+                    (duration*1000).toLong(), 0, priority,Cardcolor))
                 adapter.notifyDataSetChanged()
                 postDataBase.postDao()
-                    .insertHabit(habit(name.text.toString(), duration, 0, priority,Cardcolor))
+                    .insertHabit(habit(name.text.toString(),   (duration*1000).toLong(), 0, priority,Cardcolor))
                     .subscribeOn(Schedulers.computation())
                     .subscribe(object : CompletableObserver {
                         override fun onSubscribe(d: Disposable) {
@@ -278,7 +291,10 @@ class MainActivity : AppCompatActivity() {
 
                         override fun onComplete() {
                             sharedPrefData.SaveInt("Progress", 0)
-                            UpgradeProductivity(0)
+                            runOnUiThread {
+                                UpgradeProductivity(0)
+                            }
+
                         }
 
                         override fun onError(e: Throwable) {

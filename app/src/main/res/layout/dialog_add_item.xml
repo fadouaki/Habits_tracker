@@ -10,6 +10,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        app:cardBackgroundColor="#F87F7F"
         app:cardCornerRadius="12dp"
         app:cardElevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,173 +21,204 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:gravity="center"
             android:background="@drawable/bg_layout"
+            android:gravity="center"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/add_habit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="8dp"
+                android:fontFamily="casual"
+                android:text="Create "
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="3dp"
+                android:layout_margin="5dp"
                 android:gravity="center"
                 android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:paddingTop="10dp"
-                    android:text="Habit name"
-                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/name_habit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
+                    android:background="@null"
                     android:ems="10"
+                    android:fontFamily="@font/carter_one"
                     android:gravity="center"
-                    android:hint="Sport"
-                    android:inputType="text" />
+                    android:hint="New habit"
+                    android:inputType="text"
+                    android:textColorHint="#CD5E5D5D" />
             </LinearLayout>
 
-            <CheckBox
-                android:id="@+id/checkBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="disible time" />
-
-            <LinearLayout
-                android:id="@+id/time_layout"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="3dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:paddingTop="10dp"
-                    android:text="Duration of habit"
-                    android:textStyle="bold" />
+                android:layout_margin="10dp"
+                app:cardCornerRadius="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="3dp">
+
+                    <CheckBox
+                        android:id="@+id/checkBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="casual"
+                        android:text="disible time" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="45dp"
-                        android:layout_marginHorizontal="5dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
+                        android:id="@+id/time_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="3dp"
                         android:orientation="horizontal">
-
-                        <EditText
-                            android:id="@+id/hour_habit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:ems="10"
-                            android:gravity="center"
-                            android:hint="2"
-                            android:inputType="number"
-                            android:maxWidth="90dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Hours" />
+                            android:layout_margin="3dp"
+                            android:fontFamily="casual"
+                            android:paddingTop="10dp"
+                            android:text="Duration of habit"
+                            android:textColor="@color/black" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="45dp"
+                                android:layout_marginHorizontal="5dp"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <EditText
+                                    android:id="@+id/hour_habit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:ems="10"
+                                    android:gravity="center"
+                                    android:hint="1"
+                                    android:inputType="number"
+                                    android:maxWidth="90dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="casual"
+                                    android:text="Hours" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="5dp"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <EditText
+                                    android:id="@+id/min_habit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="45dp"
+                                    android:layout_weight="1"
+                                    android:ems="10"
+                                    android:gravity="center"
+                                    android:hint="20"
+                                    android:inputType="number"
+                                    android:maxWidth="90dp" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="casual"
+                                    android:text="Minutes" />
+                            </LinearLayout>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_margin="3dp"
+                        android:background="#D2B8B8B8"></LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="5dp"
-                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        android:fontFamily="casual"
                         android:gravity="center"
+                        android:layout_margin="3dp"
+                        android:text="Priority of habit"
+                        android:textColor="@color/black" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="3dp"
                         android:orientation="horizontal">
 
-                        <EditText
-                            android:id="@+id/min_habit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="45dp"
-                            android:layout_weight="1"
-                            android:ems="10"
-                            android:gravity="center"
-                            android:hint="27"
-                            android:inputType="number"
-                            android:maxWidth="90dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <RadioGroup
+                            android:id="@+id/radioGroup"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Minutes" />
+                            android:layout_marginHorizontal="10dp"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <RadioButton
+                                android:id="@+id/radioLow"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:tag="1"
+                                android:text="Low"
+                                android:textColor="#0E9F26"
+                                android:textStyle="bold" />
+
+                            <RadioButton
+                                android:id="@+id/radioMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:tag="2"
+                                android:text="Medium"
+                                android:textColor="#DF800B"
+                                android:textStyle="bold" />
+
+                            <RadioButton
+                                android:id="@+id/radioHigh"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:tag="3"
+                                android:text="High"
+                                android:textColor="#DF2121"
+                                android:textStyle="bold" />
+                        </RadioGroup>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:text="Duration of habit"
-                android:textStyle="bold" />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-                <RadioGroup
-                    android:id="@+id/radioGroup"
-                    android:layout_width="match_parent"
-                    android:gravity="center"
-                    android:layout_marginHorizontal="10dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+            </androidx.cardview.widget.CardView>
 
-                    <RadioButton
-                        android:id="@+id/radioLow"
-                        android:layout_weight="1"
-                        android:textColor="#0E9F26"
-                        android:textStyle="bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:tag="1"
-                        android:text="Low"/>
-
-                    <RadioButton
-                        android:id="@+id/radioMedium"
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="#DF800B"
-                        android:textStyle="bold"
-                        android:layout_height="wrap_content"
-                        android:tag="2"
-                        android:text="Medium"/>
-
-                    <RadioButton
-                        android:id="@+id/radioHigh"
-                        android:layout_width="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="#DF2121"
-                        android:textStyle="bold"
-                        android:tag="3"
-                        android:layout_height="wrap_content"
-                        android:text="High"/>
-                </RadioGroup>
-            </LinearLayout>
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/add_habit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:layout_marginBottom="8dp"
-                android:backgroundTint="@color/color1"
-                android:text="Add habit" />
 
         </LinearLayout>
 

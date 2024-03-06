@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "table_habit")
 class habit (
     var habitName: String,
-    var duration: Int,
-    var remainingTime:Int,
+    var duration: Long,
+    var remainingTime:Long,
     var priority:Int,
     var color: Int
     ){

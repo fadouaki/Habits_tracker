@@ -57,5 +57,7 @@ dependencies {
 
     implementation ("io.reactivex.rxjava2:rxandroid:2.1.1")
     implementation ("io.reactivex.rxjava2:rxjava:2.1.1")
+    implementation ("com.polidea.rxandroidble2:rxandroidble:1.11.1")
     implementation ("androidx.work:work-runtime-ktx:2.7.0")
+    implementation("com.airbnb.android:lottie:6.0.1")
 }
