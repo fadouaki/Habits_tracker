@@ -1,12 +1,12 @@
 # Daily habit tracker / Task timer
 
 ## Introduction
-[An android app to track how much time you spend on a particular habit/task daily.]
+An android app to track how much time you spend on a particular habit/task daily.
 
 ## Features
-- [Create habits both with and without specified durations.]
-- [Save remaining time when stopping]
-- [Start the animation when you start practicing the habit]
+- Create habits both with and without specified durations.
+- Save remaining time when stopping
+- Start the animation when you start practicing the habit
 
 ## Screenshoot
 <img src="https://github.com/fadouaki/Habits_tracker/assets/134284958/3586c786-2f1e-4508-bc65-3089fabd3d56" alt="Screenshot" width="600">
