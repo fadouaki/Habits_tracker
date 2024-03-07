@@ -2,6 +2,5 @@ Habit tracker or task timer
 An android app to track how much time you spend on a particular habit/task daily
 
 Screenshoot
-![1](https://github.com/fadouaki/Habits_tracker/assets/134284958/5ad2065b-f876-43a1-981c-9ea6bc929b3c)
-
-![2](https://github.com/fadouaki/Habits_tracker/assets/134284958/2d802cc6-92a2-4c85-a5c5-e2768a81907e)
+![Screenshot_20240307_003417](https://github.com/fadouaki/Habits_tracker/assets/134284958/3586c786-2f1e-4508-bc65-3089fabd3d56)
+![Screenshot_20240307_010506](https://github.com/fadouaki/Habits_tracker/assets/134284958/c1b28132-8f92-4996-99b7-5f92b104d46f)
