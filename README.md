@@ -1,10 +1,15 @@
-Habit tracker or task timer
-to do :
+# Habit tracker / Tasks timer
+## Description
+track your habits and calculate your daily progress 
+## to do 
+
 * Add icons for tasks 
 * Add days of week
+* Add statistics of your habits
 
 
-Screenshoot
-![1](https://github.com/fadouaki/Habits_tracker/assets/134284958/5ad2065b-f876-43a1-981c-9ea6bc929b3c)
+## Screenshoot
 
-![2](https://github.com/fadouaki/Habits_tracker/assets/134284958/2d802cc6-92a2-4c85-a5c5-e2768a81907e)
+<img src="https://github.com/fadouaki/Habits_tracker/assets/134284958/61a267f8-a33d-48d0-bc2b-c1f98e0660c2" width="110" height="190">
+<img src="https://github.com/fadouaki/Habits_tracker/assets/134284958/f0cf48f1-f251-40d3-81c5-057daa0e8c62" width="110" height="190">
+<img src="https://github.com/fadouaki/Habits_tracker/assets/134284958/f3e3b198-95c3-4cb3-bc73-939223f38b37" width="110" height="190">
