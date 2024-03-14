@@ -1,4 +1,4 @@
-package com.improveskills.habitstracker
+package com.improveskills.habitstracker.Utils
 
 import android.content.Context
 import android.content.SharedPreferences

@@ -54,10 +54,9 @@ dependencies {
 
     // optional - RxJava2 support for Room
     implementation ("androidx.room:room-rxjava2:2.6.1")
-
     implementation ("io.reactivex.rxjava2:rxandroid:2.1.1")
     implementation ("io.reactivex.rxjava2:rxjava:2.2.17")
-    implementation ("com.polidea.rxandroidble2:rxandroidble:1.11.1")
+
     implementation ("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.airbnb.android:lottie:6.0.1")
 }

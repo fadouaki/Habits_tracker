@@ -9,30 +9,35 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.improveskills.habitstracker.Adapter.IconsAdapter
 import com.improveskills.habitstracker.Adapter.habitAdapter
+import com.improveskills.habitstracker.Interface.GetImage
 import com.improveskills.habitstracker.Interface.OnComplite
 import com.improveskills.habitstracker.R
-import com.improveskills.habitstracker.SharedPrefData
+import com.improveskills.habitstracker.Utils.ExFunctions
+import com.improveskills.habitstracker.Utils.SharedPrefData
 import com.improveskills.habitstracker.database.HabitDataBase
 import com.improveskills.habitstracker.database.habit
 import com.improveskills.habitstracker.databinding.ActivityMainBinding
-import com.polidea.rxandroidble2.exceptions.BleException
 import io.reactivex.CompletableObserver
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.exceptions.UndeliverableException
-import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import java.util.Calendar
 import kotlin.random.Random
@@ -40,16 +45,17 @@ import kotlin.random.Random
 
 class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     private lateinit var bind: ActivityMainBinding
-    lateinit var postDataBase: HabitDataBase
-    lateinit var adapter: habitAdapter
-    lateinit var Habits: List<habit>
+    private lateinit var postDataBase: HabitDataBase
+    private lateinit var adapter: habitAdapter
+    private lateinit var Habits: List<habit>
     private var duration = 1
-    lateinit var sharedPrefData: SharedPrefData
+    private lateinit var sharedPrefData: SharedPrefData
 
     private var startTimeMinute: Int = 0
     private var endTimeMinute: Int = 0
-    lateinit var endTimeText: TextView
-    lateinit var startTimeText: TextView
+    private lateinit var endTimeText: TextView
+    private lateinit var startTimeText: TextView
+    private lateinit var bottomSheetDialog: BottomSheetDialog
 
 
     @SuppressLint("CheckResult")
@@ -57,13 +63,6 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         super.onCreate(savedInstanceState)
         bind = ActivityMainBinding.inflate(layoutInflater)
         setContentView(bind.root)
-        RxJavaPlugins.setErrorHandler { throwable ->
-            if (throwable is UndeliverableException && throwable.cause is BleException) {
-                return@setErrorHandler // ignore BleExceptions since we do not have subscriber
-            } else {
-                throw throwable
-            }
-        }
         bind.addTask.setOnClickListener {
             showAddDialog()
         }
@@ -79,7 +78,6 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : SingleObserver<List<habit>> {
                 override fun onSubscribe(d: Disposable) {
-                    Log.d("HabitTAki", " size dis")
                 }
 
                 override fun onError(e: Throwable) {
@@ -92,14 +90,11 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
                     adapter = habitAdapter(this@MainActivity, Habits, object : OnComplite {
                         override fun onComplite(priority: Int) {
                             runOnUiThread {
-                                Log.d("HabitTAki", " totole ${sharedPrefData.LoadInt("TotalPriority")}")
                                 UpgradeProductivity(priority)
                             }
-
                         }
 
                     })
-                    Log.d("HabitTAki", " size ${t.size}")
                     bind.recyclerHabit.layoutManager = LinearLayoutManager(this@MainActivity)
                     bind.recyclerHabit.adapter = adapter
 
@@ -109,24 +104,6 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
 
         getProgress()
     }
-    /*  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-          menuInflater.inflate(R.menu.menu_main, menu)
-          return true
-      }*/
-
-    /*    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-            when (item.itemId) {
-                R.id.Add_Item -> {
-                    showAddDialog()
-                    return true
-                }
-                R.id.Reset_data -> {
-                    showRenewDataDialog(this@MainActivity)
-                    return true
-                }
-                else -> return super.onOptionsItemSelected(item)
-            }
-        }*/
 
     fun UpgradeProductivity(Priority: Int) {
         val percentage: Float =
@@ -138,26 +115,6 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             bind.progressBar.progress = 100
         bind.emojiTextView.text = "${bind.progressBar.progress}%"
 
-        /*  // Update position of the emoji based on progress
-          val progressBarWidth =
-              bind.progressBar.width - bind.progressBar.paddingLeft - bind.progressBar.paddingRight
-          val layoutParams = bind.emojiTextView.layoutParams as LinearLayout.LayoutParams
-
-          layoutParams.leftMargin =
-              (progressStatus * progressBarWidth / 100 + progressBarWidth * percentage).toInt() - bind.emojiTextView.width / 2
-          Log.d("HabitTAki", "    layoutParams.leftMargin  ${layoutParams.leftMargin} progressBarWidth $progressBarWidth ")
-          if (layoutParams.leftMargin > progressBarWidth * 2 / 3) {
-              bind.emojiTextView.text = "\uD83C\uDFC5"
-              layoutParams.leftMargin -= 15
-          } else if (layoutParams.leftMargin > progressBarWidth / 3)
-              bind.emojiTextView.text = "✌️"
-          else
-              bind.emojiTextView.text = "\uD83D\uDE11"
-          if (progressStatus < bind.progressBar.max) {
-              if (layoutParams.leftMargin < 0)
-                  layoutParams.leftMargin = 0
-              bind.emojiTextView.layoutParams = layoutParams
-          }*/
         sharedPrefData.SaveInt("Progress", bind.progressBar.progress)
     }
 
@@ -168,63 +125,53 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         if (bind.progressBar.progress > 97)
             bind.progressBar.progress = 100
         bind.emojiTextView.text = "${bind.progressBar.progress}%"
-        /*      // Update position of the emoji based on progress
-              bind.progressBar.post {
-                  val progressBarWidth = bind.progressBar.width - bind.progressBar.paddingLeft - bind.progressBar.paddingRight
-                  val layoutParams = bind.emojiTextView.layoutParams as LinearLayout.LayoutParams
-
-                  layoutParams.leftMargin =
-                      ( progressBarWidth*progressStatus/100 ).toInt() - bind.emojiTextView.width / 2
-
-                  if (layoutParams.leftMargin > progressBarWidth * 2 / 3) {
-                      bind.emojiTextView.text = "\uD83C\uDFC5"
-                      layoutParams.leftMargin -= 15
-                  } else if (layoutParams.leftMargin > progressBarWidth / 3)
-                      bind.emojiTextView.text = "✌️"
-                  else
-                      bind.emojiTextView.text = "\uD83D\uDE11"
-
-                  if (progressStatus < bind.progressBar.max) {
-                      if (layoutParams.leftMargin < 0)
-                          layoutParams.leftMargin = 0
-                      bind.emojiTextView.layoutParams = layoutParams
-                  }
-              }*/
-
 
     }
 
     @SuppressLint("NotifyDataSetChanged")
     fun showAddDialog() {
+        var iconName: String = ""
+        var habitTime: String = ""
         if (sharedPrefData.LoadInt("Progress") == 0) {
             var priority: Int = 1
-            val SettingsDialog: Dialog = Dialog(this)
-            SettingsDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            SettingsDialog.setContentView(R.layout.dialog_add_item)
+            val AddDialog: Dialog = Dialog(this)
+            AddDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            AddDialog.setContentView(R.layout.dialog_add_item)
 
-            val name = SettingsDialog.findViewById<EditText>(R.id.name_habit)
-            startTimeText = SettingsDialog.findViewById<TextView>(R.id.startTime)
-            endTimeText = SettingsDialog.findViewById<TextView>(R.id.endTime)
+            val name = AddDialog.findViewById<EditText>(R.id.name_habit)
+            startTimeText = AddDialog.findViewById<TextView>(R.id.startTime)
+            endTimeText = AddDialog.findViewById<TextView>(R.id.endTime)
+            val IconImage = AddDialog.findViewById<ImageView>(R.id.addicon)
+            IconImage.setOnClickListener {
+                showSheetDialog(this@MainActivity, object : GetImage {
+                    override fun getImage(imageRes: String) {
+                        iconName = imageRes
+                        IconImage.setImageDrawable(
+                            ExFunctions().loadImageFromAssets(
+                                this@MainActivity,
+                                imageRes
+                            )
+                        )
+                        bottomSheetDialog.dismiss()
+                    }
+                })
+            }
             name.requestFocus()
-            SettingsDialog.window?.setLayout(
+            AddDialog.window?.setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            SettingsDialog.findViewById<RadioGroup>(R.id.radioGroup)
+            AddDialog.findViewById<RadioGroup>(R.id.radioGroup)
                 .setOnCheckedChangeListener { _er, checkedId ->
                     val radioButton = _er.findViewById<RadioButton>(checkedId)
                     if (radioButton != null) {
                         priority = radioButton.tag.toString().toInt()
-                        Log.d("HabitTAki", " priority $priority")
-
-                        // Continue with your logic...
                     }
                 }
-            SettingsDialog.findViewById<CheckBox>(R.id.checkBox)
+            AddDialog.findViewById<CheckBox>(R.id.checkBox)
                 .setOnCheckedChangeListener { buttonView, isChecked ->
                     if (!isChecked) {
                         duration = 1
-
                     } else {
                         duration = calculateDifferenceInSeconds()
                     }
@@ -236,15 +183,19 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
             startTimeText.setOnClickListener {
                 showTimePickerDialog(true)
             }
-            SettingsDialog.findViewById<TextView>(R.id.add_habit).setOnClickListener {
-                //    val Cardcolor:Int=generateRandomColor()
+            AddDialog.findViewById<TextView>(R.id.add_habit).setOnClickListener {
                 val Cardcolor: Int = generateRandomColor()
 
                 if (!name.text.isEmpty()) {
+                    if (!endTimeText.text.toString().isEmpty())
+                        habitTime =
+                            "${endTimeText.text.toString()} -> ${startTimeText.text.toString()}"
+
                     (Habits as ArrayList).add(
                         habit(
                             name.text.toString(),
-                            "${endTimeText.text.toString()} -> ${startTimeText.text.toString()}",
+                            iconName,
+                            habitTime,
                             (duration * 1000).toLong(),
                             0L,
                             priority,
@@ -260,7 +211,8 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
                         .insertHabit(
                             habit(
                                 name.text.toString(),
-                                "${endTimeText.text.toString()} -> ${startTimeText.text.toString()} ",
+                                iconName,
+                                habitTime,
                                 (duration * 1000).toLong(),
                                 0,
                                 priority,
@@ -270,38 +222,36 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
                         .subscribeOn(Schedulers.computation())
                         .subscribe(object : CompletableObserver {
                             override fun onSubscribe(d: Disposable) {
-                                Log.d("HabitTAki", " add habit onSubscribe ")
                             }
 
                             @SuppressLint("NotifyDataSetChanged")
                             override fun onComplete() {
                                 Log.d("HabitTAki", " add habit completed ")
-                                SettingsDialog.dismiss()
+                                AddDialog.dismiss()
 
                             }
 
                             override fun onError(e: Throwable) {
-                                Log.d("HabitTAki", " add habit onError ")
                                 Toast.makeText(this@MainActivity, "Error...", Toast.LENGTH_LONG)
                                     .show()
-                                SettingsDialog.dismiss()
+                                AddDialog.dismiss()
 
                             }
                         })
 
                     duration = 1
-                } else
-
+                } else {
                     Toast.makeText(
                         this@MainActivity,
                         "Please fill out all fields!",
                         Toast.LENGTH_LONG
                     )
                         .show()
+                }
             }
 
-            SettingsDialog.show()
-        }else Toast.makeText(
+            AddDialog.show()
+        } else Toast.makeText(
             this@MainActivity,
             "It is better to reset all data after you can delete it to calculate your productivity",
             Toast.LENGTH_LONG
@@ -389,30 +339,53 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
     }
 
 
-    override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+    @SuppressLint("SetTextI18n")
+    override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) =
         // This method is called when the user selects a time in the dialog
         if (view?.rootView?.tag as? Boolean == true) {
             // Selected start time
-            startTimeMinute =hourOfDay* 60+ minute
+            startTimeMinute = hourOfDay * 60 + minute
             startTimeText.text = "$hourOfDay:$minute"
         } else {
             // Selected end time
-            endTimeMinute = hourOfDay* 60+ minute
+            endTimeMinute = hourOfDay * 60 + minute
             endTimeText.text = "$hourOfDay:$minute"
 
-
         }
-
-
-    }
 
     private fun calculateDifferenceInSeconds(): Int {
         // Calculate the difference in Seconds
         return if (endTimeMinute >= startTimeMinute) {
-            (endTimeMinute - startTimeMinute)*60
+            (endTimeMinute - startTimeMinute) * 60
         } else {
-            ( (endTimeMinute + 24 * 60) - startTimeMinute)*60
+            ((endTimeMinute + 24 * 60) - startTimeMinute) * 60
         }
     }
+
+    fun showSheetDialog(context: Context, getImage: GetImage) {
+        // Create a BottomSheetDialog
+        bottomSheetDialog = BottomSheetDialog(context)
+
+        // Inflate the layout for the dialog
+        val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_layout, null)
+
+        // Find RecyclerView in layout
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
+
+        // Set layout manager for RecyclerView
+        recyclerView.layoutManager = GridLayoutManager(context, 5)
+
+        // Set adapter for RecyclerView
+        val imageNames = (1..38).map { "$it.png" }
+        val adapter = IconsAdapter(context, imageNames, getImage)
+        recyclerView.adapter = adapter
+
+        bottomSheetDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        // Show the dialog
+        bottomSheetDialog.setContentView(view)
+        bottomSheetDialog.show()
+    }
+
 
 }

@@ -20,15 +20,18 @@ import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.core.view.isVisible
 import com.improveskills.habitstracker.Interface.OnComplite
 import com.improveskills.habitstracker.R
 import com.improveskills.habitstracker.Receiver.AlarmReceiver
-import com.improveskills.habitstracker.SharedPrefData
+import com.improveskills.habitstracker.Utils.SharedPrefData
 import java.util.*
 import kotlin.collections.ArrayList
 import com.improveskills.habitstracker.Dialog.DialogTimer
 import com.improveskills.habitstracker.Interface.DoAction
+import com.improveskills.habitstracker.Utils.ExFunctions
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -57,10 +60,22 @@ class habitAdapter(
     ) {
         var habit = Habits[position]
         holder.nameHAbit.text = habit.habitName
-        holder.hTimeTask.text = "${habit.habitTime}"
+        if (habit.habitTime.isEmpty()) holder.hTimeTask.visibility = View.GONE
+        else holder.hTimeTask.text = "${habit.habitTime}"
         holder.backIconCard.setCardBackgroundColor(habit.color)
         holder.remaining_time.visibility = View.GONE
-
+        if (!habit.habitIcon.isEmpty()) {
+          /*  Log.d(
+                "HabitTAki",
+                " icon ${habit.habitIcon}"
+            )*/
+            holder.iconHabit.setImageDrawable(
+                ExFunctions().loadImageFromAssets(
+                    context,
+                    habit.habitIcon
+                )
+            )
+        }
         when (habit.priority) {
             1 -> {
                 holder.low_priority.visibility = View.VISIBLE
@@ -80,7 +95,6 @@ class habitAdapter(
                 holder.medium_priority.visibility = View.GONE
             }
         }
-
         if (habit.remainingTime == habit.duration) {
             holder.taskInProgress.visibility = View.GONE
             holder.taskCompleted.visibility = View.VISIBLE
@@ -104,6 +118,7 @@ class habitAdapter(
                         System.currentTimeMillis() + (habit.duration - habit.remainingTime)
                     sharedPrefData.SaveBoolean("WorkingInHabit", true)
                     pandentIntent = scheduleAlarm(context, durationInMillis)
+
 
                     DialogTimer(context, habit).show(object : DoAction {
                         override fun OnDoAction() {
@@ -150,7 +165,7 @@ class habitAdapter(
                 } else {
                     holder.taskInProgress.visibility = View.GONE
                     holder.taskCompleted.visibility = View.VISIBLE
-                    habit.remainingTime = habit.duration
+                    //     habit.remainingTime = habit.duration
                     UpdateHabit(habit)
                     onComplite.onComplite(habit.priority)
                 }
@@ -174,6 +189,7 @@ class habitAdapter(
 
                             override fun onError(e: Throwable) {
                             }
+
                             override fun onSuccess(t: List<habit>) {
                                 postDataBase.postDao().deleteHabit(t[position])
                                     .subscribeOn(Schedulers.computation())
@@ -226,6 +242,7 @@ class habitAdapter(
 
     class HabitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameHAbit: TextView = itemView.findViewById(R.id.hName)
+        val iconHabit: ImageView = itemView.findViewById(R.id.hIcon)
         val hTimeTask: TextView = itemView.findViewById(R.id.hTimeTask)
         val taskCompleted: TextView = itemView.findViewById(R.id.taskcompleted)
         val taskInProgress: TextView = itemView.findViewById(R.id.taskinirogress)
@@ -312,6 +329,5 @@ class habitAdapter(
             )
         cardView.layoutParams = layoutParams
     }
-
 
 }

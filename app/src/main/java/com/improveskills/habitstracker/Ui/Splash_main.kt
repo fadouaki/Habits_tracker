@@ -3,7 +3,7 @@ package com.improveskills.habitstracker.Ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.improveskills.habitstracker.SharedPrefData
+import com.improveskills.habitstracker.Utils.SharedPrefData
 import com.improveskills.habitstracker.databinding.ActivitySplashMainBinding
 
 class Splash_main : AppCompatActivity() {

@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "table_habit")
 class habit (
     var habitName: String,
+    var habitIcon: String,
     var habitTime: String,
     var duration: Long,
     var remainingTime:Long,
