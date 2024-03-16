@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -68,6 +69,9 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         }
         bind.resetData.setOnClickListener {
             showRenewDataDialog(this)
+        }
+        bind.btnChart.setOnClickListener {
+            startActivity(Intent(this@MainActivity,MainChartActivity::class.java))
         }
         Habits = ArrayList()
         postDataBase = HabitDataBase.getInstance(this)

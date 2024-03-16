@@ -58,24 +58,28 @@ class habitAdapter(
     override fun onBindViewHolder(
         holder: HabitViewHolder, @SuppressLint("RecyclerView") position: Int
     ) {
-        var habit = Habits[position]
+        val habit = Habits[position]
+        Log.d("HabitTAki", " habit detail \n position: $position \n name: ${habit.habitName} \n " +
+                "icon ${habit.habitIcon} \n duration: ${habit.duration} \n habit.habitTime = ${habit.habitTime}")
         holder.nameHAbit.text = habit.habitName
-        if (habit.habitTime.isEmpty()) holder.hTimeTask.visibility = View.GONE
-        else holder.hTimeTask.text = "${habit.habitTime}"
+        if (!habit.habitTime.isEmpty()) {
+            Log.d("HabitTAki", " visible for \n position: $position ")
+            holder.hTimeTask.visibility = View.VISIBLE
+            holder.hTimeTask.text = "${habit.habitTime}"
+        }else
+            holder.hTimeTask.visibility = View.GONE
+
         holder.backIconCard.setCardBackgroundColor(habit.color)
-        holder.remaining_time.visibility = View.GONE
         if (!habit.habitIcon.isEmpty()) {
-          /*  Log.d(
-                "HabitTAki",
-                " icon ${habit.habitIcon}"
-            )*/
             holder.iconHabit.setImageDrawable(
                 ExFunctions().loadImageFromAssets(
                     context,
                     habit.habitIcon
                 )
             )
-        }
+        }else
+            holder.iconHabit.setImageResource(R.drawable.task_exemple)
+
         when (habit.priority) {
             1 -> {
                 holder.low_priority.visibility = View.VISIBLE
@@ -106,10 +110,6 @@ class habitAdapter(
         SetBottomPadding(holder.hCardView, position)
 
 
-
-        holder.remaining_time.text =
-            "Remaining time : ${convertSecondsToHMS(((habit.duration - habit.remainingTime) / 1000).toInt())}"
-
         holder.hStartPause.setOnClickListener {
             if (!holder.taskCompleted.isVisible) {
                 var remainingSeconds = 0L
@@ -134,38 +134,21 @@ class habitAdapter(
                             val remainingTime = durationInMillis - currentTime
                             remainingSeconds = remainingTime
 
-                            holder.remaining_time.text =
-                                "Remaining time :${convertSecondsToHMS((remainingSeconds / 1000).toInt())}"
                             if (remainingSeconds.toInt() <= 0) {
                                 holder.taskInProgress.visibility = View.GONE
                                 holder.taskCompleted.visibility = View.VISIBLE
                                 habit.remainingTime = (habit.duration - remainingSeconds) / 1000
                                 UpdateHabit(habit)
-                                holder.remaining_time.text =
-                                    "Remaining time :${convertSecondsToHMS(0)}"
                                 onComplite.onComplite(habit.priority)
                             } else {
                                 handler.postDelayed(this, 1000)
                             }
                         }
                     }, 1000)
-                    /*      } else {
-                              if ((holder.hProgressBar.progress * 1000).toLong() != habit.remainingTime) {
-                                  habit.remainingTime = (holder.hProgressBar.progress * 1000).toLong()
-                                  UpdateHabit(habit)
-                                  cancelAlarm(context, pandentIntent)
-                                  handler.removeCallbacksAndMessages(null)
-                                  holder.hStartPause.setImageResource(R.drawable.baseline_play_circle_24)
-                              } else Toast.makeText(
-                                  context,
-                                  "Now you are working",
-                                  Toast.LENGTH_LONG
-                              ).show()
-                          }*/
+
                 } else {
                     holder.taskInProgress.visibility = View.GONE
                     holder.taskCompleted.visibility = View.VISIBLE
-                    //     habit.remainingTime = habit.duration
                     UpdateHabit(habit)
                     onComplite.onComplite(habit.priority)
                 }
@@ -246,7 +229,6 @@ class habitAdapter(
         val hTimeTask: TextView = itemView.findViewById(R.id.hTimeTask)
         val taskCompleted: TextView = itemView.findViewById(R.id.taskcompleted)
         val taskInProgress: TextView = itemView.findViewById(R.id.taskinirogress)
-        val remaining_time: TextView = itemView.findViewById(R.id.Remaining_time)
         val low_priority: TextView = itemView.findViewById(R.id.l_priority)
         val medium_priority: TextView = itemView.findViewById(R.id.m_priority)
         val hight_priority: TextView = itemView.findViewById(R.id.h_priority)

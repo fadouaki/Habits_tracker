@@ -204,12 +204,12 @@
             android:src="@drawable/home" />
 
         <ImageView
-            android:id="@+id/imageView6"
+            android:id="@+id/btnChart"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:src="@drawable/profile" />
+            android:src="@drawable/ic_chart" />
     </LinearLayout>
 
 

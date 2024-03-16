@@ -14,7 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HabitsTracker"
         tools:targetApi="31">
-
+        <activity
+            android:name=".Ui.MainChartActivity"
+            android:exported="false" />
         <activity
             android:name=".Ui.Splash_main"
             android:exported="true">
@@ -26,8 +28,7 @@
         </activity>
         <activity
             android:name=".Ui.MainActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
 
         <meta-data
             android:name="preloaded_fonts"

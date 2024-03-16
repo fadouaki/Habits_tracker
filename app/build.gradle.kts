@@ -59,4 +59,5 @@ dependencies {
 
     implementation ("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.airbnb.android:lottie:6.0.1")
+    implementation("com.diogobernardino:williamchart:3.10.1")
 }

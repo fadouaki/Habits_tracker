@@ -80,15 +80,8 @@
                     android:id="@+id/hTimeTask"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     android:text="08:00 AM 10:15 AM" />
-
-                <TextView
-                    android:id="@+id/Remaining_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:text="remaining time: "
-                    android:visibility="gone" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
