@@ -380,7 +380,7 @@ class MainActivity : AppCompatActivity(), TimePickerDialog.OnTimeSetListener {
         recyclerView.layoutManager = GridLayoutManager(context, 5)
 
         // Set adapter for RecyclerView
-        val imageNames = (1..38).map { "$it.png" }
+        val imageNames = (1..49).map { "$it.png" }
         val adapter = IconsAdapter(context, imageNames, getImage)
         recyclerView.adapter = adapter
 
