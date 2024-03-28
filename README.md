@@ -12,4 +12,5 @@ track your habits and calculate your daily progress
 <img src="https://github.com/fadouaki/Habits_tracker/assets/134284958/f3e3b198-95c3-4cb3-bc73-939223f38b37" width="250" height="490">
 
 ## Collaborators
-- [Username1](https://github.com/DouniaHanyn)
+
+[![dounia_hanyn](https://avatars.githubusercontent.com/u/94720094?size=50)](https://github.com/dounia_hanyn)
