@@ -13,4 +13,4 @@ track your habits and calculate your daily progress
 
 ## Collaborators
 
-[![dounia_hanyn](https://avatars.githubusercontent.com/u/94720094?size=50)](https://github.com/dounia_hanyn)
+[![dounia_hanyn](https://github.com/DouniaHanyn.png?size=50)](https://github.com/DouniaHanyn)
